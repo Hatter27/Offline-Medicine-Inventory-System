@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Medicine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='MedsINVLOGO.png') }}">
+    <style>
+        body {
+            background: #e3f2e1;
+        }
+
+        .close {
+            color: #721c24;
+            font-size: 20px;
+        }
+
+        .form-container {
+            max-width: 450px;
+            margin: 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .medicine-list-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container h1 {
+            font-size: 20px;
+            /* Liitan ang font-size */
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .form-control {
+            font-size: 14px;
+            /* Liitan ang input text size */
+            padding: 5px 10px;
+        }
+
+        .btn-success {
+            font-size: 14px;
+            padding: 8px;
+        }
+
+        .medicine-list-table th,
+        .medicine-list-table td {
+            text-align: center;
+            font-size: 14px;
+            /* Liitan ang font size ng table */
+        }
+
+        .search-bar {
+            margin-bottom: 10px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .alert {
+    font-size: 16px; /* Bigger font for better readability */
+    padding: 15px;   /* More padding for a bigger button and space around text */
+    margin-bottom: 15px; /* Add space below each message */
+    text-align: center; /* Center the text inside the alert box */
+}
+
+.alert-success {
+    background-color: #d4edda; /* Green background for success messages */
+    border-color: #c3e6cb; /* Lighter border color for success */
+}
+
+.alert-danger {
+    background-color: #f8d7da; /* Red background for error messages */
+    border-color: #f5c6cb; /* Lighter border color for errors */
+}
+
+.alert-warning {
+    background-color: blue; /* Yellow background for warnings */
+    border-color: blue; /* Lighter border color for warnings */
+}
+
+.close {
+    color: red; /* Red color for close button */
+    font-size: 18px;
+}
+
+/* Center the alert in the container */
+.alert-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Take up the full viewport height */
+}
+.medicine-list-container h2 {
+    text-align: center;
+    font-weight: bold;
+}
+/* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background: #343a40;
+            padding-top: 20px;
+            transition: 0.3s;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #495057;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Hamburger Button */
+        .menu-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            font-size: 30px;
+            color: #343a40;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+         /* Footer Styles */
+        .footer {
+            background-color: lightgreen;
+            text-align: center;
+            padding: 0px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-weight: bold;
+            margin-bottom: 0px;
+            
+        }
+        .footer img {
+            height: 50px; /* Adjust as needed */
+            margin-right: 10px;
+            border-radius: 25px;
+        }
+
+        .footer-text {
+            font-weight: bold;
+            font-size: 18px;
+            color: black;
+        }
+
+        @media print {
+    body * {
+        visibility: hidden;
+    }
+    #print-area, #print-area * {
+        visibility: visible;
+    }
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    .btn, .menu-btn, #sidebar, .footer {
+        display: none !important; /* Itago ang mga hindi kailangan */
+    }
+}
+.print-container {
+    position: absolute;
+    top: 10px;  /* Adjust kung gusto mong mas mataas o mababa */
+    right: 10px; /* Gawin mong 20px kung mas gusto mong lumayo sa gilid */
+}
+        
+    </style>
+
+</head>
+
+<body>
+    <!-- Hamburger Button -->
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+   
+
+
+    <div class="print-container">
+        <button class="btn btn-success print-btn" onclick="window.print()">Print</button>
+        <a href="{{ url_for('export_csv') }}" class="btn btn-success">Save as CSV</a>
+    </div>
+    
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <a href="javascript:void(0)" onclick="toggleSidebar()">✖ Close</a>
+        <a href="{{ url_for('index') }}">🏠 Dashboard</a>
+        <a href="{{ url_for('view_sales') }}">📊 View Sales</a>
+        <a href="{{ url_for('add_medicine') }}">💊 Add Medicine</a>
+        <a href="{{ url_for('manage_discounts') }}">💰 Manage Discounts</a>
+        <a href="{{ url_for('view_alerts') }}">🚨 View Alerts</a>
+        <a href="{{ url_for('deleted_medicines') }}">🗑️ Deleted Medicines</a>
+        <a href="{{ url_for('revenue') }}">💲 Revenue</a>
+        
+    </div>
+
+    <div class="container">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+        </div>
+
+    
+        <div class="container">
+            <div class="form-container">
+                <h1>Add New Medicine</h1>
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Duplicate is not allowed!</strong> This medicine is already recorded in the system.
+                    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endif %}
+                <form action="{{ url_for('add_medicine') }}" method="POST">
+                    <div class="mb-2">
+                        <label for="name" class="form-label">Medicine Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="price" class="form-label">Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₱</span>
+                            <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label for="expiration_date" class="form-label">Expiration Date</label>
+                        <input type="date" class="form-control" id="expiration_date" name="expiration_date" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="category" class="form-label">Category (Benefits/Purpose)</label>
+                        <input type="text" class="form-control" id="category" name="category" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Add Medicine</button>
+                </form>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search for medicines"
+                    onkeyup="searchMedicine()">
+            </div>
+
+            <div class="medicine-list-container" id="print-area">
+                <h2 class="text-center">List of Medicines</h2>
+                <table class="table table-bordered medicine-list-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Expiration Date</th>
+                            <th>Category</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medicineTableBody">
+                        {% for medicine in medicines %}
+                        <tr>
+                            <td>{{ medicine[1] }}</td>
+                            <td>{{ medicine[2] }}</td>
+                            <td>₱{{ medicine[3] }}</td>
+                            <td>{{ medicine[4] }}</td>
+                            <td>{{ medicine[5] }}</td>                                                          <!-- If you want to use the form-based POST method for deleting -->
+                            <td style="text-align: center; vertical-align: middle;">
+                                <button class="btn btn-warning btn-sm"
+                                    onclick="editMedicine('{{ medicine[0] }}', '{{ medicine[1] }}', '{{ medicine[2] }}', '{{ medicine[3] }}', '{{ medicine[4] }}', '{{ medicine[5] }}')">
+                                    Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteMedicine('{{ medicine[0] }}')">
+                                    Delete
+                                </button>
+                            </td>
+
+                                                                                   
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">No medicines found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+
+        <div id="editMedicineModal" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Medicine</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editMedicineForm" method="POST" action="{{ url_for('edit_medicine') }}">
+                            <input type="hidden" id="edit_medicine_id" name="medicine_id">
+        
+                            <div class="mb-2">
+                                <label for="edit_name" class="form-label">Medicine Name</label>
+                                <input type="text" class="form-control" id="edit_name" name="name" required>
+                            </div>
+        
+                            <div class="mb-2">
+                                <label for="edit_quantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="edit_quantity" name="quantity" required>
+                            </div>
+        
+                            <div class="mb-2">
+                                <label for="edit_price" class="form-label">Price</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    <input type="number" step="0.01" class="form-control" id="edit_price" name="price" required>
+                                </div>
+                            </div>
+        
+                            <div class="mb-2">
+                                <label for="edit_expiration_date" class="form-label">Expiration Date</label>
+                                <input type="date" class="form-control" id="edit_expiration_date" name="expiration_date"
+                                    required>
+                            </div>
+        
+                            <div class="mb-2">
+                                <label for="edit_category" class="form-label">Category (Benefits/Purpose)</label>
+                                <input type="text" class="form-control" id="edit_category" name="category" required>
+                            </div>
+        
+                            <button type="submit" class="btn btn-success w-100">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br> 
+        <!-- Footer -->
+        <div class="footer">
+            <img src="{{ url_for('static', filename='cedarLOGO.png') }}" alt="Cedar College Logo">
+            <span class="footer-text">Cedar College Inc.</span>
+        
+        </div>
+
+        <script>
+            function toggleSidebar() {
+                document.getElementById("sidebar").classList.toggle("active");
+            }
+        </script>
+
+<script>
+    function editMedicine(id, name, quantity, price, expiration, category) {
+        document.getElementById('edit_medicine_id').value = id;
+        document.getElementById('edit_name').value = name;
+        document.getElementById('edit_quantity').value = quantity;
+        document.getElementById('edit_price').value = price;
+        document.getElementById('edit_expiration_date').value = expiration;
+        document.getElementById('edit_category').value = category;
+
+        // Ipakita ang modal
+        var editModal = new bootstrap.Modal(document.getElementById('editMedicineModal'));
+        editModal.show();
+    }
+</script>
+
+
+
+    <script>
+        function deleteMedicine(medicineId) {
+            if (confirm("Are you sure you want to delete this medicine?")) {
+                fetch(`/delete_medicine/${ medicineId }`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                    .then(response => response.text())  // 📌 Dapat "text" at hindi JSON!
+                    .then(html => {
+                        document.body.innerHTML = html;  // 📌 I-update ang buong page
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+    </script>
+    
+
+
+        <script>
+            function searchMedicine() {
+                let input = document.getElementById('searchInput');
+                let filter = input.value.toLowerCase();
+                let table = document.getElementById('medicineTableBody');
+                let tr = table.getElementsByTagName('tr');
+
+                for (let i = 0; i < tr.length; i++) {
+                    let td = tr[i].getElementsByTagName('td');
+                    let name = td[0] ? td[0].textContent.toLowerCase() : "";
+                    let category = td[4] ? td[4].textContent.toLowerCase() : "";
+
+                    if (name.indexOf(filter) > -1 || category.indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>

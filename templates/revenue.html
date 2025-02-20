@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Report</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='MedsINVLOGO.png') }}">
+</head>
+<style>
+     /* Footer Styles */
+        .footer {
+            background-color: lightgreen;
+            text-align: center;
+            padding: 0px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-weight: bold;
+             margin-bottom: 0px;
+            
+        }
+        .footer img {
+            height: 50px; /* Adjust as needed */
+            margin-right: 10px;
+            border-radius: 25px;
+        }
+
+        .footer-text {
+            font-weight: bold;
+            font-size: 18px;
+            color: black;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background: #343a40;
+            padding-top: 20px;
+            transition: 0.3s;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #495057;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Hamburger Button */
+        .menu-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            font-size: 30px;
+            color: #343a40;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+    </style>
+
+
+<body  style="background-color: #d4edda;">
+
+    <!-- Hamburger Button -->
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <a href="javascript:void(0)" onclick="toggleSidebar()">✖ Close</a>
+        <a href="{{ url_for('index') }}">🏠 Dashboard</a>
+        <a href="{{ url_for('view_sales') }}">📊 View Sales</a>
+        <a href="{{ url_for('add_medicine') }}">💊 Add Medicine</a>
+        <a href="{{ url_for('manage_discounts') }}">💰 Manage Discounts</a>
+        <a href="{{ url_for('view_alerts') }}">🚨 View Alerts</a>
+        <a href="{{ url_for('deleted_medicines') }}">🗑️ Deleted Medicines</a>
+    </div>
+
+    <div class="container mt-5">
+        <h2 class="text-center text-primary fw-bold">Sales Revenue</h2>
+
+        <!-- Date Picker Form -->
+        <form method="GET" action="{{ url_for('revenue') }}" class="text-center mb-3">
+            <label for="date" class="fw-bold">Select Date:</label>
+            <input type="date" name="date" id="date" value="{{ selected_date }}" class="form-control w-25 d-inline">
+            <button type="submit" class="btn btn-primary">Check</button>
+        </form>
+
+        <div class="card shadow-lg">
+            <div class="card-body text-center">
+                <h3 class="text-success fw-bold">₱{{ total_revenue }}</h3>
+                <p class="text-muted">Total sales for <strong>{{ selected_date }}</strong></p>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <div class="footer">
+        <img src="{{ url_for('static', filename='cedarLOGO.png') }}" alt="Cedar College Logo">
+        <span class="footer-text">Cedar College Inc.</span>
+    
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("active");
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

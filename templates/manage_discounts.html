@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Discount</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='MedsINVLOGO.png') }}">
+    <style>
+        body {
+            background-color: #e8f5e9;
+        }
+
+        .card {
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card-header {
+            font-weight: bold;
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background: #343a40;
+            padding-top: 20px;
+            transition: 0.3s;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #495057;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Hamburger Button */
+        .menu-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            font-size: 30px;
+            color: #343a40;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+         /* Footer Styles */
+        .footer {
+            background-color: lightgreen;
+            text-align: center;
+            padding: 0px;
+            bottom: 0;
+            width: 100%;
+            font-weight: bold;
+            margin-bottom: 0px;
+            
+        }
+        .footer img {
+            height: 50px; /* Adjust as needed */
+            margin-right: 10px;
+            border-radius: 25px;
+        }
+
+        .footer-text {
+            font-weight: bold;
+            font-size: 18px;
+            color: black;
+        }
+    .footer {
+    position: relative; /* Para hindi fixed at sumunod sa content */
+    margin-top: 30px; /* Dagdag space sa taas ng footer */
+    }
+    </style>
+</head>
+
+<body>
+<!-- Hamburger Button -->
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- Sidebar Navigation -->
+<div class="sidebar" id="sidebar">
+    <a href="javascript:void(0)" onclick="toggleSidebar()">✖ Close</a>
+    <a href="{{ url_for('index') }}">🏠 Dashboard</a>
+    <a href="{{ url_for('view_sales') }}">📊 View Sales</a>
+    <a href="{{ url_for('add_medicine') }}">💊 Add Medicine</a>
+    <a href="{{ url_for('manage_discounts') }}">💰 Manage Discounts</a>
+    <a href="{{ url_for('view_alerts') }}">🚨 View Alerts</a>
+    <a href="{{ url_for('deleted_medicines') }}">🗑️ Deleted Medicines</a>
+    <a href="{{ url_for('revenue') }}">💲 Revenue</a>
+</div>
+
+    <div class="container mt-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-success text-white text-center">
+                <h3 class="mb-0">Manage Discounts</h3>
+            </div>
+            <div class="card-body">
+                <form id="discountForm" action="{{url_for('apply_discount')}}" method="POST">
+                    <div class="mb-3">
+                        <label for="medicine" class="form-label">Select Medicine</label>
+                        <select id="medicine" name="medicine" class="form-select" required>
+                            <option value="">-- Select Medicine --</option>
+                            {% for medicine in medicines %}
+                            <option value="{{ medicine[1] }}" data-price="{{ medicine[2] }}"
+                                data-quantity="{{ medicine[3] }}">{{ medicine[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1"
+                            required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="customerType" class="form-label">Customer Type</label>
+                        <select id="customerType" name="customerType" class="form-select" required>
+                            <option value="regular">Regular Customer</option>
+                            <option value="senior">Senior Citizen (20% Discount)</option>
+                            <option value="pwd">PWD (20% Discount)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="totalPrice" class="form-label">Total Price (₱)</label>
+                        <input type="number" id="totalPrice" name="totalPrice" class="form-control" step="0.01"
+                            readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="discountedPrice" class="form-label">Discounted Price (₱)</label>
+                        <input type="number" id="discountedPrice" name="discountedPrice" class="form-control"
+                            step="0.01" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cashGiven" class="form-label">Cash Given (₱)</label>
+                        <input type="number" id="cashGiven" name="cashGiven" class="form-control" min="0" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="change" class="form-label">Change (₱)</label>
+                        <input type="number" id="change" name="change" class="form-control" step="0.01" readonly>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Apply</button>
+                </form>
+            </div>
+        </div>
+    </div>
+     
+    <!-- Footer -->
+    <div class="footer">
+        <img src="{{ url_for('static', filename='cedarLOGO.png') }}" alt="Cedar College Logo">
+        <span class="footer-text">Cedar College Inc.</span>
+    
+    </div>
+
+
+    <script>
+        function computeTotal() {
+                let medicineSelect = document.getElementById("medicine");
+                let selectedOption = medicineSelect.options[medicineSelect.selectedIndex];
+
+                if (!selectedOption || !selectedOption.hasAttribute("data-price") || !selectedOption.hasAttribute("data-quantity")) {
+                    return;
+                }
+
+                let price = parseFloat(selectedOption.getAttribute("data-price")) || 0;
+                let availableQuantity = parseInt(selectedOption.getAttribute("data-quantity")) || 0;
+                let quantityInput = document.getElementById("quantity");
+                let quantity = parseInt(quantityInput.value) || 1;
+                let customerType = document.getElementById("customerType").value;
+                let discountRate = (customerType === "senior" || customerType === "pwd") ? 0.2 : 0;
+
+                // Limit the quantity input based on available stock
+                if (quantity > availableQuantity) {
+                    quantityInput.value = availableQuantity;
+                    quantity = availableQuantity;
+                    alert("Quantity exceeds available stock!");
+                }
+                if (quantity < 1) {
+                    quantityInput.value = 1;
+                    quantity = 1;
+                }
+
+                let totalPrice = price * quantity;
+                let discountedPrice = totalPrice - (totalPrice * discountRate);
+
+                document.getElementById("totalPrice").value = totalPrice.toFixed(2);
+                document.getElementById("discountedPrice").value = discountedPrice.toFixed(2);
+
+                computeChange(); // Update ang sukli agad
+            }
+
+            function computeChange() {
+                let discountedPrice = parseFloat(document.getElementById("discountedPrice").value) || 0;
+                let cashGiven = parseFloat(document.getElementById("cashGiven").value) || 0;
+
+                let change = cashGiven - discountedPrice;
+                document.getElementById("change").value = change >= 0 ? change.toFixed(2) : "0.00";
+            }
+
+            // Event Listeners
+            document.getElementById("medicine").addEventListener("change", computeTotal);
+            document.getElementById("quantity").addEventListener("input", computeTotal);
+            document.getElementById("customerType").addEventListener("change", computeTotal);
+            document.getElementById("cashGiven").addEventListener("input", computeChange);
+
+           document.getElementById("discountForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                let formData = new FormData(this);
+
+                console.log("Submitting Form Data:");
+                for (var pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+
+                // 🔹 Step 1: I-update muna ang stock (EXISTING)
+                fetch("/update_stock", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Server Response (Update Stock):", data);
+                        if (data.status === "success") {
+
+                            // 🔹 Step 2: Kapag okay ang stock update, i-save ang transaction sa sales
+                            return fetch("/apply_discount", {
+                                method: "POST",
+                                body: formData
+                            });
+
+                        } else {
+                            throw new Error("Error updating stock: " + data.message);
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Server Response (Apply Discount):", data);
+                        if (data.status === "success") {
+                            alert("Transaction successful!");
+                            window.location.href = "/view_sales";  // 🔹 Redirect sa sales report
+                        } else {
+                            alert("Error: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Fetch Error:", error);
+                        alert("An error occurred. Please try again.");
+                    });
+            });
+
+
+    </script>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("active");
+        }
+    </script>
+
+</body>
+
+</html>
